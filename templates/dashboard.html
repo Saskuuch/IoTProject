@@ -1,0 +1,52 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+
+  <h1>Sensor 1</h1>
+    <div id="chart_div" style="width: 450px; height: 300px;"></div>
+        
+    </div>
+
+</body>
+<script>
+    google.charts.load('current', {'packages':['gauge']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+
+var data = google.visualization.arrayToDataTable([
+  ['Label', 'Value'],
+  ['CO', 30],
+  ['H2S', 5],
+  ['Methane', 100]
+]);
+
+var options = {
+    min:0, max:200,
+  width: 400, height: 100,
+  redFrom: 100, redTo: 150,
+  yellowFrom:50, yellowTo: 100,
+  minorTicks: 5
+};
+
+var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+chart.draw(data, options);
+
+setInterval(function() {
+  data.setValue(0, 1, 40 + Math.round(60 * Math.random()));
+  chart.draw(data, options);
+}, 13000);
+setInterval(function() {
+  data.setValue(1, 1, 40 + Math.round(60 * Math.random()));
+  chart.draw(data, options);
+}, 5000);
+setInterval(function() {
+  data.setValue(2, 1, 60 + Math.round(20 * Math.random()));
+  chart.draw(data, options);
+}, 26000);
+}
+
+</script>
+</html>

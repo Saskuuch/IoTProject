@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap Layout</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+<style>
+    #map-container{
+        padding-right:0;
+        padding-bottom: 0;
+    }
+    .range-container {
+            padding: 20px;
+        }
+</style>
+<!-- Top row: header -->
+<div class="row">
+    <div class="col-12 bg-primary text-white">
+        <h1 class="text-center">Gas Sensor Dashboard</h1>
+    </div>
+</div>
+
+<!-- Row 2: Three equally sized boxes -->
+<div class="row">
+    <div class="col-4 bg-secondary text-white">
+        <h2 class="text-center">Sensors Active: 1</h2>
+    </div>
+    <div class="col-4 bg-secondary text-white">
+        <h2 class="text-center">Temperature: 22c</h2>
+    </div>
+    <div class="col-4 bg-secondary text-white">
+        <h2 class="text-center">Box 3</h2>
+    </div>
+</div>
+
+<!-- Row 3: Left box (2/3) and right box (1/3) with four vertically stacked boxes -->
+<div class="row">
+    <div class="col-8 bg-info text-white" id="map-container">
+        {{ map_html|safe }}
+    </div>
+    <div class="col-4 bg-warning text-white">
+        <div class="row">
+            <div class="col-12 bg-danger text-white">
+                <h3 class="text-center">Carbon Monoxide</h3>
+                <input type="range" class="form-control-range" id="carbonMonoxide" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="carbonMonoxideValue">0</span> ppm</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 bg-danger text-white">
+                <h3 class="text-center">Methane</h3>
+                <input type="range" class="form-control-range" id="methane" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="methaneValue">0</span> ppm</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 bg-danger text-white">
+                <h3 class="text-center">Smoke</h3>
+                <input type="range" class="form-control-range" id="smoke" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="smokeValue">0</span> ppm</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 bg-danger text-white">
+                <h3 class="text-center">Sulfur Dioxide</h3>
+                <input type="range" class="form-control-range" id="sulfur" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="sulfurValue">0</span> ppm</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    $('#carbonMonoxide').on("input", function(){
+        $("#carbonMonoxideValue").text($('#carbonMonoxide').val());
+    });
+    $('#methane').on("input", function(){
+        $("#methaneValue").text($('#methane').val());
+    });
+    $('#smoke').on("input", function(){
+        $("#smokeValue").text($('#smoke').val());
+    });
+    $('#sulfur').on("input", function(){
+        $("#sulfurValue").text($('#sulfur').val());
+    });
+</script>

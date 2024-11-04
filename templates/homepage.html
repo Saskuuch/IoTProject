@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Page</title>
+    <style>
+        #map-container {
+            width: 70%;
+            height: fit-content;
+            border:2px black solid;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Webpage with Embedded Folium Map</h1>
+    <p>This is a webpage with various content components.</p>
+
+    <div id="map-container">
+        {{ map_html|safe }}
+    </div>
+
+</body>
+
+<script>
+    $("#popup").attr("src","http://127.0.0.1:8000/dashboard");
+</script>
+</html>
