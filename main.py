@@ -1,8 +1,24 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
 import folium
-#import jinja2
+from flask_bcrypt import Bcrypt
+import flask_login as ln
+from flask_sqlalchemy import SQLAlchemy
+import database.authentication as auth
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'test'
+app.config['SQLALCHEMY_DATABASE_URI'] = ('mssql+pyodbc://ethansmwarner:tEotWtWoT1@ethansmwarner.database.windows.net/capstone-prompt-storage?driver=ODBC+Driver+18+for+SQL+Server&autocommit=True')#DATABASE URL
+bcrypt = Bcrypt(app)
+loginManager = ln.LoginManager(app)
+loginManager.login_view = 'login'
+db = SQLAlchemy(app)
+
+class User(ln.UserMixin, db.Model):
+    __tablename__ = 'IOT_USERS'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    passwrd = db.Column(db.String(150), nullable=False)
 
 def map_create():
     lat = 50.676109
@@ -25,17 +41,67 @@ def map_create():
 
     return map
 
+
 @app.route("/")
+@ln.login_required
 def initialLanding():
     map = map_create()
     html = map._repr_html_()
     return render_template("testhome.html", map_html = html)
 
+@app.route("/homepage")
+def homepage():
+    map = map_create()
+    html = map._repr_html_()
+    return render_template("testhome.html", map_html = html)
+
+@loginManager.user_loader
+def loadUser(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == "POST":
+        username = request.form.get('user')
+        password = request.form.get('password')
+        print(username + password)
+        user = User.query.filter_by(username=username).first()
+        
+        if user and bcrypt.check_password_hash(user.passwrd, password):
+            ln.login_user(user)
+            return redirect(url_for("homepage"))
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password1 = request.form.get('psd1')
+        password2 = request.form.get('psd2')
+        if password1 == password2:
+            hashed_password = bcrypt.generate_password_hash(password1).decode('utf-8')
+            
+            user = User(username=username, passwrd=hashed_password)
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for('login'))
+        else:
+            return redirect(url_for('openRegister'))
+    
+@app.route('/openRegister', methods = ['GET', 'POST'])
+def openRegister():
+    return render_template("register.html")
+
+@app.route('/registerPage', methods = ['GET', 'POST'])
+def openRegistration():
+    return redirect(url_for('openRegister'))
+
 @app.route("/dashboard", methods=['GET', 'POST'])
-def dashBoard():
+def dashboard():
     return render_template("dashboard.html")
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
+
 
