@@ -32,7 +32,7 @@ def map_create():
 
     folium.Marker(
         [50.667, -120.367],
-        popup=folium.Popup("<div style='width:500px;height:400px; background-color:white'><iframe id='popup' width='100%' height='100%' src='http://127.0.0.1:8000/dashboard'></iframe></div>", max_width=500),
+        popup=folium.Popup("<div style='width:700px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='http://127.0.0.1:8000/dashboard'></iframe></div>", max_width=700),
         tooltip="TRU",
     ).add_to(map)
 
