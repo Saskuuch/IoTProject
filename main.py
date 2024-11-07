@@ -115,6 +115,17 @@ def getChartData():
     print('here')
     return (data)
 
+@app.route("/getChartData_24", methods=["GET", 'POST'])
+def getChartData_24():
+    data = {
+    "carbon": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "methane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "airq": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "butane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)]
+} #get data from sensor
+    print('here')
+    return (data)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
