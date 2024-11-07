@@ -1,11 +1,11 @@
 function getGraphData(){
-    $.post("http://127.0.0.1:8000/getChartData", {}, function(data){
+    $.post("http://127.0.0.1:2300/getChartData", {}, function(data){
         updateChart(data);
     });
 }
 
 function getGraphData24(){
-    $.post("http://127.0.0.1:8000/getChartData_24", {}, function(data){
+    $.post("http://127.0.0.1:2300/getChartData_24", {}, function(data){
         updateChart24(data);
     });
 }
