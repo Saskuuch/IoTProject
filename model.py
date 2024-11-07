@@ -73,11 +73,11 @@ def get_gas (gas_index):
     else:
         raise ValueError(f"get_gas(), type {type(gas_index)} is not supported. Use either int or GasType enum.")
 
-    query = f"SELECT {gas_index.name} FROM Gasses WHERE {gas_index.name} IS NOT NULL ORDER BY id DESC LIMIT 1"
+    query = f"SELECT `{gas.name}` FROM Gasses WHERE `{gas.name}` IS NOT NULL ORDER BY id DESC LIMIT 1"
 
     result = execute_query (query)
 
-    return result[0]
+    return result[0][0]
     
 def get_last_danger_level ():
     query = f"SELECT * FROM Gasses WHERE danger = 1 ORDER BY id DESC LIMIT 1"
@@ -110,9 +110,8 @@ def insert_gasses (gas_levels):
         if (is_danger_level (key, value)):
             danger_level = 1
     
-    current_time = datetime.now()
-    
-    query = f"INSERT INTO Gasses ({gasses_string}datetime,danger) VALUES ({gasses_values_string}{current_time},{danger_level})"
+    query = f"INSERT INTO Gasses ({gasses_string}danger) VALUES ({gasses_values_string}{danger_level})"
+    print (query)
 
     result = insert_query (query)
     return result
@@ -127,3 +126,10 @@ def get_danger_level ():
 # TODO Implement this
 def is_danger_level (gas, level):
     return False
+
+if __name__ == "__main__":
+    print ("Attempted to read  database")
+    #dummy_data = {1: 100, 2: 200, 3: 300, 4: 400}
+    result = get_gas (1)
+    print (result)
+    input ("")
