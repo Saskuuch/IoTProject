@@ -126,10 +126,3 @@ def get_danger_level ():
 # TODO Implement this
 def is_danger_level (gas, level):
     return False
-
-if __name__ == "__main__":
-    print ("Attempted to read  database")
-    #dummy_data = {1: 100, 2: 200, 3: 300, 4: 400}
-    result = get_gas (1)
-    print (result)
-    input ("")
