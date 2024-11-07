@@ -7,6 +7,7 @@ import database.authentication as auth
 import random
 import datetime
 import json
+import model as md
 
 app = Flask(__name__)
 
@@ -106,22 +107,54 @@ def dashboard():
 
 @app.route("/getChartData", methods=["GET", 'POST'])
 def getChartData():
+    databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 1, 60)
+    avgCarbon = []
+    avgMethane = []
+    avgaq = []
+    avgButane = []
+    timestamps = []
+
+    for item in databaseOut:
+        if (item[4]%10 == 0):
+            avgCarbon.append(item[0])
+            avgMethane.append(item[1])
+            avgaq.append(item[2])
+            avgButane.append(item[3])
+            timestamps.append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+
     data = {
-    "carbon": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "methane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "airq": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "butane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)]
+    "carbon": {"timestamp": timestamps, "value": avgCarbon},
+    "methane": {"timestamp": timestamps, "value": avgMethane},
+    "airq": {"timestamp": timestamps, "value": avgaq},
+    "butane": {"timestamp": timestamps, "value": avgButane}
 } #get data from sensor
+    
+    
     print('here')
     return (data)
 
 @app.route("/getChartData_24", methods=["GET", 'POST'])
 def getChartData_24():
+    databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 2, 24)
+    avgCarbon = []
+    avgMethane = []
+    avgaq = []
+    avgButane = []
+    timestamps = []
+
+    for item in databaseOut:
+        if (item[4]%2 == 0):
+            avgCarbon.append(item[0])
+            avgMethane.append(item[1])
+            avgaq.append(item[2])
+            avgButane.append(item[3])
+            timestamps.append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+
     data = {
-    "carbon": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "methane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "airq": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
-    "butane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)]
+    "carbon": {"timestamp": timestamps, "value": avgCarbon},
+    "methane": {"timestamp": timestamps, "value": avgMethane},
+    "airq": {"timestamp": timestamps, "value": avgaq},
+    "butane": {"timestamp": timestamps, "value": avgButane}
 } #get data from sensor
     print('here')
     return (data)
