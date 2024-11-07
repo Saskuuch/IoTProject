@@ -4,11 +4,15 @@ from flask_bcrypt import Bcrypt
 import flask_login as ln
 from flask_sqlalchemy import SQLAlchemy
 import database.authentication as auth
+import random
+import datetime
+import json
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'test'
-app.config['SQLALCHEMY_DATABASE_URI'] = ('mssql+pyodbc://ethansmwarner:tEotWtWoT1@ethansmwarner.database.windows.net/capstone-prompt-storage?driver=ODBC+Driver+18+for+SQL+Server&autocommit=True')#DATABASE URL
+app.config['SQLALCHEMY_DATABASE_URI'] = ('mssql+pyodbc://ethansmwarner:tEotWtWoT1@ethansmwarner.database.windows.net/capstone-prompt-storage?driver=ODBC+Driver+18+for+SQL+Server&autocommit=True')
+#mysql+pymysql://iot_user:iot_pass@172.218.153.209:3306/iot_project
 bcrypt = Bcrypt(app)
 loginManager = ln.LoginManager(app)
 loginManager.login_view = 'login'
@@ -32,7 +36,7 @@ def map_create():
 
     folium.Marker(
         [50.667, -120.367],
-        popup=folium.Popup("<div style='width:700px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='http://127.0.0.1:8000/dashboard'></iframe></div>", max_width=700),
+        popup=folium.Popup("<div style='width:900px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='http://127.0.0.1:8000/dashboard'></iframe></div>", max_width=900),
         tooltip="TRU",
     ).add_to(map)
 
@@ -99,6 +103,17 @@ def openRegistration():
 @app.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
     return render_template("dashboard.html")
+
+@app.route("/getChartData", methods=["GET", 'POST'])
+def getChartData():
+    data = {
+    "carbon": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "methane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "airq": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)],
+    "butane": [{"timestamp": (datetime.datetime.now() - datetime.timedelta(minutes=i)).strftime("%H:%M"), "value": random.randint(0, 100)} for i in range(10)]
+} #get data from sensor
+    print('here')
+    return (data)
 
 
 if __name__ == '__main__':

@@ -7,10 +7,20 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='javascript/gaugeFunctions.js') }}" type='text/javascript'></script>  
+  
+  
 </head>
 <style>
   .card-body{
     padding:0;
+  }
+  .col-3{
+    padding:0;
+  }
+  table{
+    display:inline-block;
   }
 </style>
 <body>
@@ -25,28 +35,28 @@
         <!-- Rows 2-5: 4 equally sized boxes -->
         <div class="row">
             <div class="col-3">
-                <div class="card" style="border:0">
+                <div class="card" style="border:0; text-align: center;">
                     <div class="card-body" id = "methaneGauge">
                         
                     </div>
                 </div>
             </div>
             <div class="col-3">
-                <div class="card" style="border:0">
+                <div class="card" style="border:0; text-align: center;">
                     <div class="card-body" id = "carbonGauge">
                         
                     </div>
                 </div>
             </div>
             <div class="col-3">
-                <div class="card" style="border:0">
+                <div class="card" style="border:0; text-align: center;">
                     <div class="card-body" id = "aqGauge">
                        
                     </div>
                 </div>
             </div>
             <div class="col-3">
-                <div class="card" style="border:0">
+                <div class="card" style="border:0; text-align: center;">
                     <div class="card-body" id = "butaneGauge">
                         
                     </div>
@@ -57,29 +67,29 @@
         <div class="row">
             <div class="col-3">
                 <div class="card">
-                    <div class="card-body" id = "methaneGraph">
-                        
+                    <div class="card-body" >
+                        <canvas id = "methaneGraph" width="800" height="800"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-3">
                 <div class="card">
-                    <div class="card-body" id = "carbonGraph">
-                        
+                    <div class="card-body" >
+                        <canvas id = "carbonGraph" width="800" height="800"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-3">
                 <div class="card">
-                    <div class="card-body" id = "aqGraph">
-                        
+                    <div class="card-body" >
+                        <canvas id = "aqGraph" width="800" height="800"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-3">
                 <div class="card">
-                    <div class="card-body" id = "butaneGraph">
-                        
+                    <div class="card-body" >
+                        <canvas id = "butaneGraph" width="800" height="800"></canvas>
                     </div>
                 </div>
             </div>
@@ -148,68 +158,9 @@
         </div>
     </div>
 </body>
-</html>
+<script src="{{ url_for('static', filename='javascript/graphFunctions.js') }}" type='text/javascript'></script>
 <script>
-    google.charts.load('current', {'packages':['gauge']});
-    google.charts.setOnLoadCallback(drawChart);
-    function drawChart() {
 
-var methdata = google.visualization.arrayToDataTable([
-  ['Label', 'Value'],
-  ['Methane', 102]
-]);
-var methoptions = {
-    min:0, max:10000,
-  width: 400, height: 140,
-  redFrom: 8000, redTo: 10000,
-  yellowFrom:1000, yellowTo: 8000,
-  minorTicks: 20
-};
-var carbondata = google.visualization.arrayToDataTable([
-  ['Label', 'Value'],
-  ['CO', 5]
-  
-]);
-var carboptions = {
-    min:0, max:1000,
-  width: 400, height: 140,
-  redFrom: 500, redTo: 1000,
-  yellowFrom:50, yellowTo: 500,
-  minorTicks: 20
-};
-var aqdata = google.visualization.arrayToDataTable([
-  ['Label', 'Value'],
-  ['Air Quality', 22]
-]);
-var aqoptions = {
-    min:0, max:1000,
-  width: 400, height: 140,
-  redFrom: 700, redTo: 1000,
-  yellowFrom:200, yellowTo: 700,
-  minorTicks: 20
-};
-var butdata = google.visualization.arrayToDataTable([
-  ['Label', 'Value'],
-  ['Butane', 33]
-]);
-
-var butoptions = {
-    min:0, max:1600,
-  width: 400, height: 140,
-  redFrom: 1000, redTo: 1600,
-  yellowFrom:700, yellowTo: 1000,
-  minorTicks: 30
-};
-
-var methguage = new google.visualization.Gauge(document.getElementById('methaneGauge'));
-var carbguage = new google.visualization.Gauge(document.getElementById('carbonGauge'));
-var aqguage = new google.visualization.Gauge(document.getElementById('aqGauge'));
-var butguage = new google.visualization.Gauge(document.getElementById('butaneGauge'));
-
-methguage.draw(methdata, methoptions);
-carbguage.draw(carbondata, carboptions);
-aqguage.draw(aqdata, aqoptions);
-butguage.draw(butdata, butoptions);
-    }
 </script>
 </html>
+

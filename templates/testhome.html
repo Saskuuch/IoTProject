@@ -30,7 +30,7 @@
         <h2 class="text-center">Sensors Active: 1</h2>
     </div>
     <div class="col-4 bg-secondary text-white">
-        <h2 class="text-center">Temperature: 22c</h2>
+        <h2 class="text-center" id = 'localTime'>Time</h2>
     </div>
     <div class="col-4 bg-secondary text-white">
         <h2 class="text-center">Box 3</h2>
@@ -90,4 +90,17 @@
     $('#sulfur').on("input", function(){
         $("#sulfurValue").text($('#sulfur').val());
     });
+
+    function formatTime(number) {
+    return number < 10 ? '0' + number : number;
+}
+
+    function setLocalTime(){
+        let now = new Date();
+        let currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        $("#localTime").text('Current Time: ' + currentTime);
+    }
+
+    setInterval(setLocalTime, 1000);
 </script>
