@@ -2,6 +2,8 @@ import mysql.connector
 from mysql.connector import Error
 from enum import Enum
 from datetime import datetime
+from datetime import timedelta
+import random
 
 class GasType (Enum):
     air_quality = 1
@@ -16,6 +18,12 @@ class GasType (Enum):
     methane = 10
     natural_gas = 11
     smoke = 12
+
+class TimePeriod (Enum):
+    minute = 1
+    hour = 2
+    day = 3
+    week = 4
 
 def init_connection ():
     try:
@@ -78,6 +86,56 @@ def get_gas (gas_index):
     result = execute_query (query)
 
     return result[0][0]
+
+"""
+    Input type: Array of GasType (Enum)
+"""
+def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
+    end_time = datetime.now()
+    
+    if isinstance (time_period, TimePeriod):
+        time_period_value = time_period
+    elif isinstance (time_period, int):
+        time_period_value = TimePeriod (time_period)
+    else:
+        raise ValueError (f"get_gasses_over_time(), value {time_period} {type(time_period)} not supported. Should be of type: TimePeriod.")
+    
+    if time_period_value == TimePeriod.minute:
+        start_time = end_time - timedelta(minutes=interval)
+    elif time_period_value == TimePeriod.hour:
+        start_time = end_time - timedelta(hours=interval)
+    elif time_period_value == TimePeriod.day:
+        start_time = end_time - timedelta(days=interval)
+    elif time_period_value == TimePeriod.week:
+        start_time = end_time - timedelta(weeks=interval)
+    else:
+        raise ValueError (f"get_gasses_over_time(), value {time_period} {type(time_period)} not supported. Should be of type: TimePeriod.")        
+    
+    gasses_string = ""
+    for gas in gasses:
+        if isinstance (gas, GasType):
+            gasses_string += f"AVG({gas.name}),"
+        elif isinstance (gas, int):
+            gasses_string += f"AVG({GasType (gas).name}),"           
+        else:
+            raise ValueError (f"get_gasses_over_time(), value {gas} ({type(gas)}) not supported. Use either int or GasType enum.")
+    query = f"""
+        SELECT
+            {gasses_string}
+            {time_period_value.name.upper()}(datetime) AS {time_period_value.name}
+        FROM
+            Gasses
+        WHERE
+            datetime >= '{start_time.replace(microsecond=0)}' AND datetime <= '{end_time.replace(microsecond=0)}'
+        GROUP BY 
+            {time_period_value.name.upper()}(datetime)
+        ORDER BY 
+            {time_period_value.name} DESC
+        LIMIT {interval};
+    """
+    results = execute_query (query)
+
+    return results
     
 def get_last_danger_level ():
     query = f"SELECT * FROM Gasses WHERE danger = 1 ORDER BY id DESC LIMIT 1"
@@ -91,7 +149,6 @@ def get_last_danger_level ():
     {Enum or Int GasType: GasValue}
 """
 def insert_gasses (gas_levels):
-    
     gasses_string = ""
     gasses_values_string = ""
     danger_level = 0
@@ -111,7 +168,31 @@ def insert_gasses (gas_levels):
             danger_level = 1
     
     query = f"INSERT INTO Gasses ({gasses_string}danger) VALUES ({gasses_values_string}{danger_level})"
-    print (query)
+    #print (query)
+
+    result = insert_query (query)
+    return result
+
+def insert_gasses (gas_levels, current_time):
+    gasses_string = ""
+    gasses_values_string = ""
+    danger_level = 0
+
+    for key, value in gas_levels.items():
+        if isinstance (key, GasType):
+            gasses_string += f"{key.name},"
+        elif isinstance (key, int):
+            gasses_string += f"{GasType (key).name},"           
+        else:
+            raise ValueError (f"insert_gasses(), value {key} ({type(key)}) not supported. Use either int or GasType enum.")
+
+        gasses_values_string += f"{value},"
+
+        if (is_danger_level (key, value)):
+            danger_level = 1
+    
+    query = f"INSERT INTO Gasses ({gasses_string}danger,datetime) VALUES ({gasses_values_string}{danger_level},'{current_time.replace(microsecond=0)}')"
+    #print (query)
 
     result = insert_query (query)
     return result
