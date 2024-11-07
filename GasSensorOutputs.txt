@@ -1,0 +1,9 @@
+MQ-2: Methane, Butane, LPG, Smoke
+MQ-3: Alcohol, Ethanol, Smoke
+MQ-4: Methane, CNG Gas
+MQ-5: Natural gas, LPG
+MQ-6: LPG, butane
+MQ-7: Carbon monoxide
+MQ-8: Hydrogen gas
+MQ-9: Carbon monoxide, flammable gasses
+MQ135: Air quality
