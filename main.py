@@ -165,7 +165,7 @@ def getGaugeData():
 
 @app.route("/getDangerLevel", methods=["POST"])
 def getDangerLevel():
-    dangerLevel = md.get_danger_level()
+    dangerLevel = md.get_danger_level_setting(request.args.get('gas'))
     return {"level":dangerLevel}
 
 #--------------Data Insert Routes--------------#
