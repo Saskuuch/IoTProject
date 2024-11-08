@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_cors import CORS
 import folium
 from flask_bcrypt import Bcrypt
@@ -112,7 +112,7 @@ def dashboard():
 @app.route("/getChartData", methods=["GET", 'POST'])
 def getChartData():
     databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 1, 60)
-    averages = {"carbon", [], "methane", [], "airq", [], "butane", [], "timestamps", []}
+    averages = {"carbon": [], "methane": [], "airq": [], "butane": [], "timestamps": []}
 
     for item in databaseOut:
         if (item[4]%10 == 0):
@@ -129,12 +129,12 @@ def getChartData():
         "butane": {"timestamp": averages['timestamps'], "value": averages['butane']}
     }
 
-    return (data)
+    return jsonify (data)
 
 @app.route("/getChartData_24", methods=["GET", 'POST'])
 def getChartData_24():
     databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 2, 24)
-    averages = {"carbon", [], "methane", [], "airq", [], "butane", [], "timestamps", []}
+    averages = {"carbon": [], "methane": [], "airq": [], "butane": [], "timestamps": []}
 
     for item in databaseOut:
         if (item[4]%2 == 0):
@@ -150,9 +150,9 @@ def getChartData_24():
         "airq": {"timestamp": averages['timestamps'], "value": averages['airq']},
         "butane": {"timestamp": averages['timestamps'], "value": averages['butane']}
     }
-    return (data)
+    return jsonify (data)
 
-@app.route("/getGaugeData")
+@app.route("/getGaugeData", methods=["POST"])
 def getGaugeData():
     #get data from database
     data = [random.randint(0, 10000), random.randint(0, 1000), random.randint(0, 1000), random.randint(0, 1600)]

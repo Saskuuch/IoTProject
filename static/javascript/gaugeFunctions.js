@@ -61,7 +61,7 @@ butguage.draw(butdata, butoptions);
 }
 
 function sendGuageUpdate(){
-    $.post("{{ url_for('getGaugeData') }}", {}, function(data){
+    $.post("/getGaugeData", {}, function(data){
         updateGuages(data);
     });
 }

@@ -1,11 +1,12 @@
 function getGraphData(){
-    $.post("{{ url_for('getChartData') }}", {}, function(data){
+    $.post("/getChartData", {}, function(data){
         updateChart(data);
     });
 }
 
 function getGraphData24(){
-    $.post("{{ url_for('getChartData_24') }}", {}, function(data){
+  
+    $.post("/getChartData_24", {}, function(data){
         updateChart24(data);
     });
 }
@@ -134,42 +135,52 @@ var chartOptions = {
 function updateChart(data){
     var datas = data;
     console.log(datas);
+
+    let carbonData = data.carbon.value.map((value) => value === null ? 0 : value);
+    let methaneData = data.methane.value.map((value) => value === null ? 0 : value);
+    let airqData = data.airq.value.map((value) => value === null ? 0 : value);
+    let butaneData = data.butane.value.map((value) => value === null ? 0 : value);
     
-    charts['carbon'].data.datasets[0].data = data.carbon.map((d) => d.value);
-    charts['carbon'].data.labels = data.carbon.map((d) => d.timestamp);
+    charts['carbon'].data.datasets[0].data = carbonData;
+    charts['carbon'].data.labels = data.carbon.timestamp;
     charts['carbon'].update();
-    
-    charts['methane'].data.datasets[0].data = data.methane.map((d) => d.value);
-    charts['methane'].data.labels = data.methane.map((d) => d.timestamp);
+
+    charts['methane'].data.datasets[0].data = methaneData;
+    charts['methane'].data.labels = data.methane.timestamp;
     charts['methane'].update();
-    
-    charts['airq'].data.datasets[0].data = data.airq.map((d) => d.value);
-    charts['airq'].data.labels = data.airq.map((d) => d.timestamp);
+
+    charts['airq'].data.datasets[0].data = airqData;
+    charts['airq'].data.labels = data.airq.timestamp;
     charts['airq'].update();
-    
-    charts['butane'].data.datasets[0].data = data.butane.map((d) => d.value);
-    charts['butane'].data.labels = data.butane.map((d) => d.timestamp);
+
+    charts['butane'].data.datasets[0].data = butaneData;
+    charts['butane'].data.labels = data.butane.timestamp;
     charts['butane'].update();
 }
 
 function updateChart24(data){
     var datas = data;
     console.log(datas);
+
+    let carbonData = data.carbon.value.map((value) => value === null ? 0 : value);
+    let methaneData = data.methane.value.map((value) => value === null ? 0 : value);
+    let airqData = data.airq.value.map((value) => value === null ? 0 : value);
+    let butaneData = data.butane.value.map((value) => value === null ? 0 : value);
     
-    charts24['carbon'].data.datasets[0].data = data.carbon.map((d) => d.value);
-    charts24['carbon'].data.labels = data.carbon.map((d) => d.timestamp);
+    charts24['carbon'].data.datasets[0].data = carbonData;
+    charts24['carbon'].data.labels = data.carbon.timestamp;
     charts24['carbon'].update();
-    
-    charts24['methane'].data.datasets[0].data = data.methane.map((d) => d.value);
-    charts24['methane'].data.labels = data.methane.map((d) => d.timestamp);
+
+    charts24['methane'].data.datasets[0].data = methaneData;
+    charts24['methane'].data.labels = data.methane.timestamp;
     charts24['methane'].update();
-    
-    charts24['airq'].data.datasets[0].data = data.airq.map((d) => d.value);
-    charts24['airq'].data.labels = data.airq.map((d) => d.timestamp);
+
+    charts24['airq'].data.datasets[0].data = airqData;
+    charts24['airq'].data.labels = data.airq.timestamp;
     charts24['airq'].update();
-    
-    charts24['butane'].data.datasets[0].data = data.butane.map((d) => d.value);
-    charts24['butane'].data.labels = data.butane.map((d) => d.timestamp);
+
+    charts24['butane'].data.datasets[0].data = butaneData;
+    charts24['butane'].data.labels = data.butane.timestamp;
     charts24['butane'].update();
 }
 
