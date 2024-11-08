@@ -162,7 +162,7 @@ def insert_gasses (gas_levels):
     result = insert_query (query)
     return result
 
-def insert_gasses (gas_levels, current_time):
+def insert_gasses_with_timestamp (gas_levels, current_time):
     gasses_string = ""
     gasses_values_string = ""
     danger_level = 0
