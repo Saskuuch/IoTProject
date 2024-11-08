@@ -155,7 +155,12 @@ def getChartData_24():
 @app.route("/getGaugeData", methods=["POST"])
 def getGaugeData():
     #get data from database
-    data = [random.randint(0, 10000), random.randint(0, 1000), random.randint(0, 1000), random.randint(0, 1600)]
+
+    methane = md.get_gas (10)
+    co = md.get_gas (4)
+    air = md.get_gas (1)
+    butane = md.get_gas (3)
+    data = [methane, co, air, butane]
     return data
 
 #--------------Data Insert Routes--------------#

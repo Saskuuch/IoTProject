@@ -85,7 +85,10 @@ def get_gas (gas_index):
 
     result = execute_query (query)
 
-    return result[0][0]
+    if len (result) == 0:
+        return 0
+    else:
+        return result[0][0]
 
 """
     Input type: Array of GasType (Enum)
