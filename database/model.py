@@ -201,10 +201,10 @@ def generate_config_file ():
         config = configparser.ConfigParser()
 
         config.add_section ('GasDangerLevels')
-        config.set('GasDangerLevels', 'methane', '1000')
-        config.set('GasDangerLevels', 'air', '1000')
-        config.set('GasDangerLevels', 'carbon', '1000')
-        config.set('GasDangerLevels', 'butane', '1000')
+        config.set('GasDangerLevels', parse_to_gas_enum (10), '1000')
+        config.set('GasDangerLevels', parse_to_gas_enum (1), '1000')
+        config.set('GasDangerLevels', parse_to_gas_enum (4), '1000')
+        config.set('GasDangerLevels', parse_to_gas_enum (3), '1000')
 
         with open("settings.ini", 'w') as configfile:
             config.write(configfile)
@@ -222,7 +222,7 @@ def update_danger_level (gas, value):
     except configparser.NoOptionError:
         print ("Error, no setting found")
 
-def get_setting (gas):
+def get_danger_level_setting (gas):
     config = configparser.ConfigParser()
     config.read('settings.ini')
 
@@ -233,7 +233,9 @@ def get_setting (gas):
         print ("Error, no setting found")
         return None
 
-
-# TODO Implement this
 def is_danger_level (gas, level):
-    return False
+    danger_level = get_danger_level_setting (gas)
+    if level >= danger_level:
+        return True
+    else:
+        return False
