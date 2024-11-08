@@ -163,6 +163,11 @@ def getGaugeData():
     data = [methane, co, air, butane]
     return data
 
+@app.route("/getDangerLevel", methods=["POST"])
+def getDangerLevel():
+    dangerLevel = md.get_danger_level()
+    return {"level":dangerLevel}
+
 #--------------Data Insert Routes--------------#
 @app.route("/addGasses")
 def addGasses():

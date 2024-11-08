@@ -85,6 +85,25 @@
 </html>
 
 <script>
+
+    $.post("/getDangerLevel", {"gas": 4}, function(data){
+        $("#carbonMonoxideValue").text(data.level);
+        $("carbonMonoxide").val(data.level);
+    });
+    $.post("/getDangerLevel", {"gas": 10}, function(data){
+        $("#methaneValue").text(data.level);
+        $("methane").val(data.level);
+    });
+    $.post("/getDangerLevel", {"gas": 1}, function(data){
+        $("#aqValue").text(data.level);
+        $("airquality").val(data.level);
+    });
+    $.post("/getDangerLevel", {"gas": 3}, function(data){
+        $("#butaneValue").text(data.level);
+        $("butane").val(data.level);
+    });
+
+
     $('#carbonMonoxide').on("input", function(){
         $("#carbonMonoxideValue").text($('#carbonMonoxide').val());
     });
@@ -110,6 +129,8 @@
     $('#butane').on("change", function(){
         $.post("/updateDangerLevel", {"gas":3, 'level':$('#butane').val()});
         });
+
+
 
 
     function formatTime(number) {
