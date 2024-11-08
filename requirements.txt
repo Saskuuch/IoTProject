@@ -1,2 +1,7 @@
 mysql-connector-python
 folium
+flask
+flask-login
+flask-cors
+flask-bcrypt
+flask-sqlalchemy
