@@ -24,7 +24,7 @@ class User(ln.UserMixin, db.Model):
     __tablename__ = 'IOT_USERS'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    passwrd = db.Column(db.String(150), nullable=False)
+    password = db.Column(db.String(150), nullable=False)
 
 def map_create():
     lat = 50.676109
@@ -73,7 +73,7 @@ def login():
         print(username + password)
         user = User.query.filter_by(username=username).first()
         
-        if user and bcrypt.check_password_hash(user.passwrd, password):
+        if user and bcrypt.check_password_hash(user.password, password):
             ln.login_user(user)
             return redirect(url_for("homepage"))
     return render_template('login.html')
@@ -87,7 +87,7 @@ def register():
         if password1 == password2:
             hashed_password = bcrypt.generate_password_hash(password1).decode('utf-8')
             
-            user = User(username=username, passwrd=hashed_password)
+            user = User(username=username, password=hashed_password)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for('login'))
