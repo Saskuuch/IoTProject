@@ -37,19 +37,19 @@ google.charts.setOnLoadCallback(drawChart);
 function drawChart() {
     var methdata = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
-        ['Methane', 102]
+        ['Methane', 0]
     ]);
     var carbondata = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
-        ['CO', 5]
+        ['CO', 0]
     ]);
     var aqdata = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
-        ['Air Quality', 22]
+        ['Air Quality', 0]
     ]);
     var butdata = google.visualization.arrayToDataTable([
         ['Label', 'Value'],
-        ['Butane', 33]
+        ['Butane', 0]
     ]);
 
     var methguage = new google.visualization.Gauge(document.getElementById('methaneGauge'));
