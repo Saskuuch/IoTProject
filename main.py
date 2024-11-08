@@ -182,7 +182,7 @@ def addGasses():
 def updateDangerLevel():
     gas = request.args.get("gas")
     level = request.args.get("level")
-    md.setDangerLevel(gas, level)
+    md.update_danger_level(gas, level)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2300)
