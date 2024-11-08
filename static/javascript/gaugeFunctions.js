@@ -59,3 +59,26 @@ carbguage.draw(carbondata, carboptions);
 aqguage.draw(aqdata, aqoptions);
 butguage.draw(butdata, butoptions);
 }
+
+function sendGuageUpdate(){
+    $.post("{{ url_for('getGaugeData') }}", {}, function(data){
+        updateGuages(data);
+    });
+}
+function updateGuages(data){
+    var methguage =document.getElementById('methaneGauge');
+    var carbguage = document.getElementById('carbonGauge');
+    var aqguage = document.getElementById('aqGauge');
+    var butguage = document.getElementById('butaneGauge');
+
+    methguage.setValue(data[0]);
+    carbguage.setValue(data[1]); 
+    aqguage.setValue(data[2]);   
+    butguage.setValue(data[3]);
+    methguage.draw();
+    carbguage.draw();
+    aqguage.draw();
+    butguage.draw();
+    }
+
+    setInterval(sendGuageUpdate, 5000);

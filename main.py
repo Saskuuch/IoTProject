@@ -4,19 +4,15 @@ import folium
 from flask_bcrypt import Bcrypt
 import flask_login as ln
 from flask_sqlalchemy import SQLAlchemy
-# import database.authentication as auth
-# import random
 import datetime
-# import json
-import model as md
+import database.model as md
+import random
 
 app = Flask(__name__)
 CORS (app)
 
 app.config['SECRET_KEY'] = 'test'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://iot_user:iot_pass@localhost/iot_project'
-# mssql+pyodbc://ethansmwarner:tEotWtWoT1@ethansmwarner.database.windows.net/capstone-prompt-storage?driver=ODBC+Driver+18+for+SQL+Server&autocommit=True
-#mysql+pymysql://iot_user:iot_pass@172.218.153.209:3306/iot_project
 bcrypt = Bcrypt(app)
 loginManager = ln.LoginManager(app)
 loginManager.login_view = 'login'
@@ -37,10 +33,10 @@ def map_create():
 
     map = folium.Map(location=[lat, lon],
                      zoom_start=zoom, control_scale=True)
-
+    dashboardHTML = render_template("dashboard.html")
     folium.Marker(
         [50.667, -120.367],
-        popup=folium.Popup("<div style='width:900px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='http://172.218.153.209:2300/dashboard'></iframe></div>", max_width=900),
+        popup=folium.Popup(dashboardHTML, max_width=900),
         tooltip="TRU",
     ).add_to(map)
 
@@ -49,20 +45,7 @@ def map_create():
 
     return map
 
-
-@app.route("/")
-@ln.login_required
-def initialLanding():
-    map = map_create()
-    html = map._repr_html_()
-    return render_template("testhome.html", map_html = html)
-
-@app.route("/homepage")
-def homepage():
-    map = map_create()
-    html = map._repr_html_()
-    return render_template("testhome.html", map_html = html)
-
+#--------------Authentication Routes--------------#
 @loginManager.user_loader
 def loadUser(user_id):
     return User.query.get(int(user_id))
@@ -97,7 +80,6 @@ def register():
             # If passwords don't match, redirect to 'openRegister' with an error message
             return redirect(url_for('openRegister', error="Passwords do not match."))
     return render_template('register.html')
-
     
 @app.route('/openRegister', methods = ['GET', 'POST'])
 def openRegister():
@@ -107,68 +89,81 @@ def openRegister():
 def openRegistration():
     return redirect(url_for('openRegister'))
 
+
+#--------------Page Routes--------------#
+@app.route("/")
+@ln.login_required
+def initialLanding():
+    map = map_create()
+    html = map._repr_html_()
+    return render_template("testhome.html", map_html = html)
+
+@app.route("/homepage")
+def homepage():
+    map = map_create()
+    html = map._repr_html_()
+    return render_template("testhome.html", map_html = html)
+
 @app.route("/dashboard", methods=['GET', 'POST'])
 def dashboard():
     return render_template("dashboard.html")
 
+
+#--------------Data Retrival Routes--------------#
 @app.route("/getChartData", methods=["GET", 'POST'])
 def getChartData():
     databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 1, 60)
-    avgCarbon = []
-    avgMethane = []
-    avgaq = []
-    avgButane = []
-    timestamps = []
+    averages = {"carbon", [], "methane", [], "airq", [], "butane", [], "timestamps", []}
 
     for item in databaseOut:
         if (item[4]%10 == 0):
-            avgCarbon.append(item[0])
-            avgMethane.append(item[1])
-            avgaq.append(item[2])
-            avgButane.append(item[3])
-            timestamps.append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+            averages['carbon'].append(item[0])
+            averages['methane'].append(item[1])
+            averages['airq'].append(item[2])
+            averages['butane'].append(item[3])
+            averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
 
     data = {
-    "carbon": {"timestamp": timestamps, "value": avgCarbon},
-    "methane": {"timestamp": timestamps, "value": avgMethane},
-    "airq": {"timestamp": timestamps, "value": avgaq},
-    "butane": {"timestamp": timestamps, "value": avgButane}
-} #get data from sensor
-    
-    
-    print('here')
+        "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
+        "methane": {"timestamp": averages['timestamps'], "value":  averages['methane']},
+        "airq": {"timestamp": averages['timestamps'], "value": averages['airq']},
+        "butane": {"timestamp": averages['timestamps'], "value": averages['butane']}
+    }
+
     return (data)
 
 @app.route("/getChartData_24", methods=["GET", 'POST'])
 def getChartData_24():
     databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 2, 24)
-    avgCarbon = []
-    avgMethane = []
-    avgaq = []
-    avgButane = []
-    timestamps = []
+    averages = {"carbon", [], "methane", [], "airq", [], "butane", [], "timestamps", []}
 
     for item in databaseOut:
         if (item[4]%2 == 0):
-            avgCarbon.append(item[0])
-            avgMethane.append(item[1])
-            avgaq.append(item[2])
-            avgButane.append(item[3])
-            timestamps.append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+            averages['carbon'].append(item[0])
+            averages['methane'].append(item[1])
+            averages['airq'].append(item[2])
+            averages['butane'].append(item[3])
+            averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
 
     data = {
-    "carbon": {"timestamp": timestamps, "value": avgCarbon},
-    "methane": {"timestamp": timestamps, "value": avgMethane},
-    "airq": {"timestamp": timestamps, "value": avgaq},
-    "butane": {"timestamp": timestamps, "value": avgButane}
-} #get data from sensor
-    print('here')
+        "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
+        "methane": {"timestamp": averages['timestamps'], "value":  averages['methane']},
+        "airq": {"timestamp": averages['timestamps'], "value": averages['airq']},
+        "butane": {"timestamp": averages['timestamps'], "value": averages['butane']}
+    }
     return (data)
 
-@app.route("/app/addGasses")
+@app.route("/getGaugeData")
+def getGaugeData():
+    #get data from database
+    data = [random.randint(0, 10000), random.randint(0, 1000), random.randint(0, 1000), random.randint(0, 1600)]
+    return data
+
+#--------------Data Insert Routes--------------#
+@app.route("/addGasses")
 def addGasses():
     data = request.json
-    # md.insert_gasses(data[""])
+    md.insert_gasses(data[""])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2300)
