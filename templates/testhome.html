@@ -66,16 +66,16 @@
         </div>
         <div class="row">
             <div class="col-12 bg-danger text-white">
-                <h3 class="text-center">Smoke</h3>
-                <input type="range" class="form-control-range" id="smoke" min="0" max="1000" step="10" value="0">
-                <p class="text-center"><span id="smokeValue">0</span> ppm</p>
+                <h3 class="text-center">Air Quality</h3>
+                <input type="range" class="form-control-range" id="airquality" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="aqValue">0</span> ppm</p>
             </div>
         </div>
         <div class="row">
             <div class="col-12 bg-danger text-white">
-                <h3 class="text-center">Sulfur Dioxide</h3>
-                <input type="range" class="form-control-range" id="sulfur" min="0" max="1000" step="10" value="0">
-                <p class="text-center"><span id="sulfurValue">0</span> ppm</p>
+                <h3 class="text-center">Butane</h3>
+                <input type="range" class="form-control-range" id="butane" min="0" max="1000" step="10" value="0">
+                <p class="text-center"><span id="butaneValue">0</span> ppm</p>
             </div>
         </div>
     </div>
@@ -91,12 +91,26 @@
     $('#methane').on("input", function(){
         $("#methaneValue").text($('#methane').val());
     });
-    $('#smoke').on("input", function(){
-        $("#smokeValue").text($('#smoke').val());
+    $('#airquality').on("input", function(){
+        $("#aqValue").text($('#airquality').val());
     });
-    $('#sulfur').on("input", function(){
-        $("#sulfurValue").text($('#sulfur').val());
+    $('#butane').on("input", function(){
+        $("#butaneValue").text($('#butane').val());
     });
+
+    $('#carbonMonoxide').on("change", function(){
+        $.post("/updateDangerLevel", {"gas":4, 'level':$('#carbonMonoxide').val()});
+        });
+    $('#methaneValue').on("change", function(){
+        $.post("/updateDangerLevel", {"gas":10, 'level':$('#methaneValue').val()});
+        });
+    $('#airquality').on("change", function(){
+        $.post("/updateDangerLevel", {"gas":1, 'level':$('#airquality').val()});
+        });
+    $('#butane').on("change", function(){
+        $.post("/updateDangerLevel", {"gas":3, 'level':$('#butane').val()});
+        });
+
 
     function formatTime(number) {
     return number < 10 ? '0' + number : number;

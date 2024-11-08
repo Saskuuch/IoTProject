@@ -168,5 +168,11 @@ def addGasses():
     gasLevels = {4:data['carbonmonoxide'], 10:data['methane'], 1:data['airquality'], 3: data['butane']}
     md.insert_gasses(gasLevels)
 
+@app.route("/updateDangerLevel")
+def updateDangerLevel():
+    gas = request.args.get("gas")
+    level = request.args.get("level")
+    md.setDangerLevel(gas, level)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2300)
