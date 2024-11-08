@@ -4,6 +4,8 @@ from enum import Enum
 from datetime import datetime
 from datetime import timedelta
 import random
+import configparser
+import os
 
 class GasType (Enum):
     air_quality = 1
@@ -74,14 +76,9 @@ def insert_query (query):
     return False
 
 def get_gas (gas_index):
-    if (isinstance (gas_index, int)):
-        gas = GasType (gas_index)
-    elif (isinstance (gas_index, GasType)):
-        gas = gas_index
-    else:
-        raise ValueError(f"get_gas(), type {type(gas_index)} is not supported. Use either int or GasType enum.")
+    gas = parse_to_gas_enum (gas_index)
 
-    query = f"SELECT `{gas.name}` FROM Gasses WHERE `{gas.name}` IS NOT NULL ORDER BY id DESC LIMIT 1"
+    query = f"SELECT `{gas}` FROM Gasses WHERE `{gas}` IS NOT NULL ORDER BY id DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -116,12 +113,7 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
     
     gasses_string = ""
     for gas in gasses:
-        if isinstance (gas, GasType):
-            gasses_string += f"AVG({gas.name}),"
-        elif isinstance (gas, int):
-            gasses_string += f"AVG({GasType (gas).name}),"           
-        else:
-            raise ValueError (f"get_gasses_over_time(), value {gas} ({type(gas)}) not supported. Use either int or GasType enum.")
+        gasses_string += f"AVG({parse_to_gas_enum(gas)}),"
     query = f"""
         SELECT
             {gasses_string}
@@ -157,13 +149,7 @@ def insert_gasses (gas_levels):
     danger_level = 0
 
     for key, value in gas_levels.items():
-
-        if isinstance (key, GasType):
-            gasses_string += f"{key.name},"
-        elif isinstance (key, int):
-            gasses_string += f"{GasType (key).name},"           
-        else:
-            raise ValueError (f"insert_gasses(), value {key} ({type(key)}) not supported. Use either int or GasType enum.")
+        gasses_string += f"{parse_to_gas_enum(key)},"
 
         gasses_values_string += f"{value},"
 
@@ -182,12 +168,7 @@ def insert_gasses (gas_levels, current_time):
     danger_level = 0
 
     for key, value in gas_levels.items():
-        if isinstance (key, GasType):
-            gasses_string += f"{key.name},"
-        elif isinstance (key, int):
-            gasses_string += f"{GasType (key).name},"           
-        else:
-            raise ValueError (f"insert_gasses(), value {key} ({type(key)}) not supported. Use either int or GasType enum.")
+        gasses_string += f"{parse_to_gas_enum(key)},"
 
         gasses_values_string += f"{value},"
 
@@ -206,6 +187,52 @@ def get_danger_level ():
     result = execute_query (query)
 
     return result[0]
+
+def parse_to_gas_enum(value):
+    if isinstance (value, GasType):
+        return value.name
+    elif isinstance (value, int):
+        return GasType (value).name          
+    else:
+        raise ValueError (f"insert_gasses(), value {value} ({type(value)}) not supported. Use either int or GasType enum.")
+
+def generate_config_file ():
+    if not os.path.exists("settings.ini"):
+        config = configparser.ConfigParser()
+
+        config.add_section ('GasDangerLevels')
+        config.set('GasDangerLevels', 'methane', '1000')
+        config.set('GasDangerLevels', 'air', '1000')
+        config.set('GasDangerLevels', 'carbon', '1000')
+        config.set('GasDangerLevels', 'butane', '1000')
+
+        with open("settings.ini", 'w') as configfile:
+            config.write(configfile)
+
+def update_danger_level (gas, value):
+    generate_config_file()
+    config = configparser.ConfigParser()
+    config.read ('settings.ini')
+
+    try:
+        config.set ('GasDangerLevels', parse_to_gas_enum (gas), str(value))
+
+        with open ('settings.ini', 'w') as configfile:
+            config.write (configfile)
+    except configparser.NoOptionError:
+        print ("Error, no setting found")
+
+def get_setting (gas):
+    config = configparser.ConfigParser()
+    config.read('settings.ini')
+
+    try:
+        danger_level = config.getint ('GasDangerLevels', gas)
+        return danger_level
+    except configparser.NoOptionError:
+        print ("Error, no setting found")
+        return None
+
 
 # TODO Implement this
 def is_danger_level (gas, level):
