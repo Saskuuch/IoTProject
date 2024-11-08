@@ -160,6 +160,10 @@ def getChartData_24():
     print('here')
     return (data)
 
+@app.route("/app/addGasses")
+def addGasses():
+    data = request.json
+    # md.insert_gasses(data[""])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
