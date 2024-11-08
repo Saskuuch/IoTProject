@@ -35,7 +35,7 @@ def map_create():
                      zoom_start=zoom, control_scale=True)
     folium.Marker(
         [50.667, -120.367],
-        popup=folium.Popup("div style='width:900px;height:500px; background-color:white'><iframe src='/dashboard'></iframe></div>", max_width=900),
+        popup=folium.Popup("<div style='width:900px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='/dashboard'></iframe></div>", max_width=900),
         tooltip="TRU",
     ).add_to(map)
 
@@ -162,8 +162,11 @@ def getGaugeData():
 @app.route("/addGasses")
 def addGasses():
     data = request.json
+    latitute = data['latitude']
+    longitutde = data['longitude']
 
-    md.insert_gasses(data[""])
+    gasLevels = {4:data['carbonmonoxide'], 10:data['methane'], 1:data['airquality'], 3: data['butane']}
+    md.insert_gasses(gasLevels)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2300)
