@@ -120,7 +120,7 @@
     $('#carbonMonoxide').on("change", function(){
         $.post("/updateDangerLevel", {"gas":4, 'level':$('#carbonMonoxide').val()});
         });
-    $('#methaneValue').on("change", function(){
+    $('#methane').on("change", function(){
         $.post("/updateDangerLevel", {"gas":10, 'level':$('#methaneValue').val()});
         });
     $('#airquality').on("change", function(){
