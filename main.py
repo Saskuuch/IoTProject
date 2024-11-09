@@ -153,7 +153,7 @@ def getChartData_24():
     return jsonify (data)
 
 @app.route("/getGaugeData", methods=["POST"])
-def getGaugeData():
+def getGaugeData(): 
     #get data from database
 
     methane = md.get_gas (10)
@@ -165,11 +165,11 @@ def getGaugeData():
 
 @app.route("/getDangerLevel", methods=["POST"])
 def getDangerLevel():
-    dangerLevel = md.get_danger_level_setting(request.args.get('gas'))
+    dangerLevel = md.get_danger_level_setting(int (request.form.get('gas')))
     return {"level":dangerLevel}
 
 #--------------Data Insert Routes--------------#
-@app.route("/addGasses")
+@app.route("/addGasses", methods=["POST", "GET"])
 def addGasses():
     data = request.json
     latitute = data['latitude']
@@ -178,11 +178,14 @@ def addGasses():
     gasLevels = {4:data['carbonmonoxide'], 10:data['methane'], 1:data['airquality'], 3: data['butane']}
     md.insert_gasses(gasLevels)
 
-@app.route("/updateDangerLevel")
+    return jsonify({"message": "Gas levels successfully added"}), 200
+
+@app.route("/updateDangerLevel", methods=["POST"])
 def updateDangerLevel():
-    gas = request.args.get("gas")
-    level = request.args.get("level")
+    gas = int (request.form.get("gas"))
+    level = request.form.get("level")
     md.update_danger_level(gas, level)
+    return jsonify({"message": "Success"}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2300)
