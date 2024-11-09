@@ -196,41 +196,45 @@ def parse_to_gas_enum(value):
     else:
         raise ValueError (f"insert_gasses(), value {value} ({type(value)}) not supported. Use either int or GasType enum.")
 
-def generate_config_file ():
+def generate_config_file():
     if not os.path.exists("settings.ini"):
         config = configparser.ConfigParser()
 
-        config.add_section ('GasDangerLevels')
-        config.set('GasDangerLevels', parse_to_gas_enum (10), '1000')
-        config.set('GasDangerLevels', parse_to_gas_enum (1), '1000')
-        config.set('GasDangerLevels', parse_to_gas_enum (4), '1000')
-        config.set('GasDangerLevels', parse_to_gas_enum (3), '1000')
+        config.add_section('GasDangerLevels')
+        config.set('GasDangerLevels', str(parse_to_gas_enum(10)), '1000')  # Ensure the gas is a string
+        config.set('GasDangerLevels', str(parse_to_gas_enum(1)), '1000')
+        config.set('GasDangerLevels', str(parse_to_gas_enum(4)), '1000')
+        config.set('GasDangerLevels', str(parse_to_gas_enum(3)), '1000')
 
         with open("settings.ini", 'w') as configfile:
             config.write(configfile)
 
-def update_danger_level (gas, value):
+def update_danger_level(gas, value):
     generate_config_file()
-    config = configparser.ConfigParser()
-    config.read ('settings.ini')
-
-    try:
-        config.set ('GasDangerLevels', parse_to_gas_enum (gas), str(value))
-
-        with open ('settings.ini', 'w') as configfile:
-            config.write (configfile)
-    except configparser.NoOptionError:
-        print ("Error, no setting found")
-
-def get_danger_level_setting (gas):
     config = configparser.ConfigParser()
     config.read('settings.ini')
 
     try:
-        danger_level = config.getint ('GasDangerLevels', gas)
+        # Ensure gas is a string
+        config.set('GasDangerLevels', str(parse_to_gas_enum(gas)), str(value))
+
+        with open('settings.ini', 'w') as configfile:
+            config.write(configfile)
+    except configparser.NoOptionError:
+        print("Error, no setting found")
+
+def get_danger_level_setting(gas):
+    generate_config_file()
+    config = configparser.ConfigParser()
+    config.read('settings.ini')
+
+    try:
+        # Ensure gas is a string
+        gas_str = str(parse_to_gas_enum(gas))  # Convert gas to string
+        danger_level = config.getint('GasDangerLevels', gas_str)
         return danger_level
     except configparser.NoOptionError:
-        print ("Error, no setting found")
+        print("Error, no setting found")
         return None
 
 def is_danger_level (gas, level):
