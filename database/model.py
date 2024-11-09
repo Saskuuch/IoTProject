@@ -75,6 +75,22 @@ def insert_query (query):
     
     return False
 
+def is_last_data_entry_old ():
+    query = """
+        SELECT *
+        FROM Gasses
+        WHERE datetime >= NOW() - INTERVAL 2 MINUTE
+        ORDER BY datetime DESC
+        LIMIT 1;
+    """
+
+    result = execute_query (query)
+
+    if not result: 
+        return True
+    else:
+        return False 
+
 def get_gas (gas_index):
     gas = parse_to_gas_enum (gas_index)
 
@@ -133,7 +149,7 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
     return results
     
 def get_last_danger_level ():
-    query = f"SELECT * FROM Gasses WHERE danger = 1 ORDER BY id DESC LIMIT 1"
+    query = f"SELECT danger FROM Gasses ORDER BY id DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -180,13 +196,6 @@ def insert_gasses_with_timestamp (gas_levels, current_time):
 
     result = insert_query (query)
     return result
-
-def get_danger_level ():
-    query = "SELECT * FROM Gasses WHERE danger = 1 ORDER BY id DESC LIMIT 1"
-
-    result = execute_query (query)
-
-    return result[0]
 
 def parse_to_gas_enum(value):
     if isinstance (value, GasType):

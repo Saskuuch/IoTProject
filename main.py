@@ -170,7 +170,7 @@ def getDangerLevel():
 
 @app.route("/checkConnectivity", methods=["POST"])
 def checkConnectivity():
-    return {"connected": md.is_last_data_entry_old()}
+    return {"connected": not md.is_last_data_entry_old()}
 
 
 #--------------Data Insert Routes--------------#
