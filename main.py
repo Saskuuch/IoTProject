@@ -168,6 +168,11 @@ def getDangerLevel():
     dangerLevel = md.get_danger_level_setting(int (request.form.get('gas')))
     return {"level":dangerLevel}
 
+@app.route("/checkConnectivity", methods=["POST"])
+def checkConnectivity():
+    return {"connected": md.is_last_data_entry_old()}
+
+
 #--------------Data Insert Routes--------------#
 @app.route("/addGasses", methods=["POST", "GET"])
 def addGasses():

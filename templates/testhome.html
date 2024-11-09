@@ -34,7 +34,7 @@
 <!-- Row 2: Three equally sized boxes -->
 <div class="row">
     <div class="col-4 bg-secondary text-white">
-        <h2 class="text-center">Sensors Active: 1</h2>
+        <h2 class="text-center" id="deviceConnected">Sensors Active: 0</h2>
     </div>
     <div class="col-4 bg-secondary text-white">
         <h2 class="text-center" id = 'localTime'>Time</h2>
@@ -168,6 +168,20 @@ function createAlertToast (title, body)
 
         $("#localTime").text('Current Time: ' + currentTime);
     }
-    createAlertToast("Carbon Monoxide Warning!", "Carbon monoxide has reached dangerous levels in sensor 1!");
+    
+    function checkConnectivity(){
+        $.post("/checkConnectivity", function(data){
+            if(!data.connected){
+                createAlertToast("Device not Connected!", "Sensor has not sent any messages in the past 2 minutes.");
+                $("#deviceConnected").text("Sensors Active: 0");
+            }
+            else{
+                $("#deviceConnected").text("Sensors Active: 1");
+            }
+        });
+    }
+
+    checkConnectivity()
+    setInterval(checkConnectivity, 30000);
     setInterval(setLocalTime, 1000);
 </script>
