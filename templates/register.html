@@ -8,30 +8,98 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 11"></div>
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h2 class="text-center mb-4">User Registration</h2>
-                <form action = "{{ url_for('register') }}" method="post">
+                <form action = "{{ url_for('register') }}" id = "form123" method="post"> 
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" class="form-control" id="username" name = 'username' required placeholder="Enter username">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" name = 'psd1' required placeholder="Enter password">
+                        <input type="password" class="form-control" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" id="password" name = 'psd1' required placeholder="Enter password">
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
                         <input type="password" class="form-control" id="confirmPassword" name = 'psd2' required placeholder="Confirm password">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    <button id = "submit" type = "submit" class="btn btn-primary btn-block">Register</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 </html>
+
+<script>
+    $("#submit").click(function(e){
+        
+
+        let password = $("#password").val();
+        let confirm = $("#confirmPassword").val();
+        if(checkPassword(password) && password === confirm){
+            console.log("yes");
+            $("#form123").off("submit").submit();
+        }
+        else{
+            e.preventDefault();
+            createAlertToast("Passwords do not match!", "");
+        }
+    });
+
+    function createAlertToast (title, body)
+            {
+                var toastHTML = `
+                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">${title}</strong>
+                        <small class="text-muted">just now</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${body}
+                    </div>
+                    </div>
+                `;
+                var $toast = $(toastHTML);
+                $('#toast-container').append($toast);
+
+                var toast = new bootstrap.Toast($toast[0], {
+                    autohide: true,
+                    delay: 5000
+                });
+
+                toast.show();
+            }
+
+    function checkPassword(password){
+        let isValid = true;
+
+        if(!(/[a-z]/.test(password))){
+            isValid = false;
+            createAlertToast("Invalid Passord!", "Password must contain a lower-case letter");
+        }
+        if(!(/[A-Z]/.test(password))){
+            isValid = false;
+            createAlertToast("Invalid Passord!", "Password must contain an upper-case letter");
+        }
+        if(!(/\d/.test(password))){
+            isValid = false;
+            createAlertToast("Invalid Passord!", "Password must contain a digit");
+        }
+        if(!(/[@$!%*?&]/.test(password))){
+            isValid = false;
+            createAlertToast("Invalid Passord!", "Password must contain a special character [@$!%*?&]");
+        }
+        if(password.length < 8){
+            isValid = false;
+            createAlertToast("Invalid Passord!", "Password must be longer than 8 characters");
+        }
+        return isValid;
+    }
+</script>
