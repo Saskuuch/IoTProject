@@ -91,10 +91,10 @@ def is_last_data_entry_old ():
     else:
         return False 
 
-def get_gas (gas_index):
+def get_gas (gas_index, sensor=1):
     gas = parse_to_gas_enum (gas_index)
 
-    query = f"SELECT `{gas}` FROM Gasses WHERE `{gas}` IS NOT NULL ORDER BY id DESC LIMIT 1"
+    query = f"SELECT `{gas}` FROM Gasses WHERE `{gas}` IS NOT NULL AND sensor = {sensor} ORDER BY id DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -106,7 +106,7 @@ def get_gas (gas_index):
 """
     Input type: Array of GasType (Enum)
 """
-def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
+def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int, sensor=1):
     end_time = datetime.now()
     
     if isinstance (time_period, TimePeriod):
@@ -138,6 +138,7 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
             Gasses
         WHERE
             datetime >= '{start_time.replace(microsecond=0)}' AND datetime <= '{end_time.replace(microsecond=0)}'
+            AND sensor = {sensor}
         GROUP BY 
             {time_period_value.name.upper()}(datetime)
         ORDER BY 
@@ -148,8 +149,8 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int):
 
     return results
     
-def get_last_danger_level ():
-    query = f"SELECT danger FROM Gasses ORDER BY id DESC LIMIT 1"
+def get_last_danger_level (sensor=1):
+    query = f"SELECT danger FROM Gasses WHERE sensor = {sensor} ORDER BY id DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -159,7 +160,7 @@ def get_last_danger_level ():
     Input type: Dictionary in format:
     {Enum or Int GasType: GasValue}
 """
-def insert_gasses (gas_levels):
+def insert_gasses (gas_levels, lat, long, sensor=1):
     gasses_string = ""
     gasses_values_string = ""
     danger_level = 0
@@ -171,14 +172,24 @@ def insert_gasses (gas_levels):
 
         if (is_danger_level (key, value)):
             danger_level = 1
+
+    lat_double = float(lat)
+    long_double = float(long)
     
-    query = f"INSERT INTO Gasses ({gasses_string}danger) VALUES ({gasses_values_string}{danger_level})"
+    query = f"INSERT INTO Gasses ({gasses_string}danger,lat,longitude,sensor) VALUES ({gasses_values_string}{danger_level},{lat_double},{long_double},{sensor})"
     #print (query)
 
     result = insert_query (query)
     return result
 
-def insert_gasses_with_timestamp (gas_levels, current_time):
+def get_lat_long (sensor=1):
+    query = f"SELECT lat, longitude FROM Gasses WHERE sensor = {sensor} ORDER BY id DESC LIMIT 1"
+
+    result = execute_query (query)
+
+    return result [0]
+
+def insert_gasses_with_timestamp (gas_levels, current_time, lat, long, sensor=1):
     gasses_string = ""
     gasses_values_string = ""
     danger_level = 0
@@ -191,7 +202,7 @@ def insert_gasses_with_timestamp (gas_levels, current_time):
         if (is_danger_level (key, value)):
             danger_level = 1
     
-    query = f"INSERT INTO Gasses ({gasses_string}danger,datetime) VALUES ({gasses_values_string}{danger_level},'{current_time.replace(microsecond=0)}')"
+    query = f"INSERT INTO Gasses ({gasses_string}danger,datetime,lat,longitude,sensor) VALUES ({gasses_values_string}{danger_level},'{current_time.replace(microsecond=0)}',{lat},{long},{sensor})"
     #print (query)
 
     result = insert_query (query)
