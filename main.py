@@ -25,8 +25,8 @@ class User(ln.UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
 
 def map_create():
-    lat = 50.676109
-    lon = -120.340836
+    lat = 50.676109 #get from database
+    lon = -120.340836 #get from database
     zoom = 11
 
     # dfAreas = getAreas()
@@ -34,9 +34,9 @@ def map_create():
     map = folium.Map(location=[lat, lon],
                      zoom_start=zoom, control_scale=True)
     folium.Marker(
-        [50.667, -120.367],
+        [lat, lon],
         popup=folium.Popup("<div style='width:900px;height:500px; background-color:white'><iframe id='popup' width='100%' height='100%' src='/dashboard'></iframe></div>", max_width=900),
-        tooltip="TRU",
+        tooltip="Sensor 1",
     ).add_to(map)
 
     map.get_root().width = "100%"
@@ -177,13 +177,13 @@ def checkConnectivity():
 @app.route("/addGasses", methods=["POST", "GET"])
 def addGasses():
     data = request.json
-    latitute = data['latitude']
-    longitutde = data['longitude']
+    latitute = data['latitude'] #needs to be added to database
+    longitutde = data['longitude'] #needs to be added to database
 
     gasLevels = {4:data['carbonmonoxide'], 10:data['methane'], 1:data['airquality'], 3: data['butane']}
     md.insert_gasses(gasLevels)
 
-    return jsonify({"message": "Gas levels successfully added"}), 200
+    return jsonify({"message": "Gas levels successfully added"}), 200 #Change to returning danger levels?
 
 @app.route("/updateDangerLevel", methods=["POST"])
 def updateDangerLevel():

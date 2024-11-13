@@ -40,7 +40,7 @@
         <h2 class="text-center" id = 'localTime'>Time</h2>
     </div>
     <div class="col-4 bg-secondary text-white">
-        <h2 class="text-center">Box 3</h2>
+        <h2 class="text-center" id="gasAlerts">Alerts: 0</h2>
     </div>
 </div>
 
@@ -181,7 +181,33 @@ function createAlertToast (title, body)
         });
     }
 
-    checkConnectivity()
+    function checkGasAlerts(){
+        $.post("/getGaugeData", function(data){
+            let alertcount = 0;
+            if(data.methane >= $("#methane").val()){
+                createAlertToast("Methane Warning!", "Sensor 1 is detecting dangerous levels of methane!");
+                alertcount++;
+            }
+            if(data.co >= $("#carbonMonoxide").val()){
+                createAlertToast("Carbon Monoxide Warning!", "Sensor 1 is detecting dangerous levels of carbon monoxide!");
+                alertcount++;
+            }
+            if(data.air >= $("#airquality").val()){
+                createAlertToast("Air Quality Warning!", "Sensor 1 is detecting dangerous air quality!");
+                alertcount++;
+            }
+            if(data.butane >= $("#butane").val()){
+                createAlertToast("Butane Warning!", "Sensor 1 is detecting dangerous levels of butane!");
+                alertcount++;
+            }
+            $("#gasAlerts").text("Alerts: " + alertcount);
+        });
+    }
+
+    checkConnectivity();
+    checkGasAlerts();
+
+    setInterval(checkGasAlerts, 10000);
     setInterval(checkConnectivity, 30000);
     setInterval(setLocalTime, 1000);
 </script>
