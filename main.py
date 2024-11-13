@@ -25,8 +25,9 @@ class User(ln.UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
 
 def map_create():
-    lat = 50.676109 #get from database
-    lon = -120.340836 #get from database
+    gps = md.get_lat_long()
+    lat = gps[0] #get from database
+    lon = gps[1] #get from database
     zoom = 11
 
     # dfAreas = getAreas()
@@ -172,16 +173,19 @@ def getDangerLevel():
 def checkConnectivity():
     return {"connected": not md.is_last_data_entry_old()}
 
+@app.route("/dangerLevels", methods=["POST", "GET"])
+def dangerLevels():
+    return md.get_last_danger_level()
 
 #--------------Data Insert Routes--------------#
 @app.route("/addGasses", methods=["POST", "GET"])
 def addGasses():
     data = request.json
-    latitute = data['latitude'] #needs to be added to database
-    longitutde = data['longitude'] #needs to be added to database
+    latitute = data['latitude'] 
+    longitutde = data['longitude'] 
 
     gasLevels = {4:data['carbonmonoxide'], 10:data['methane'], 1:data['airquality'], 3: data['butane']}
-    md.insert_gasses(gasLevels)
+    md.insert_gasses(gasLevels, latitute, longitutde, 1)
 
     return jsonify({"message": "Gas levels successfully added"}), 200 #Change to returning danger levels?
 
