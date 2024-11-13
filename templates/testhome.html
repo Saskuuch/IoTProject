@@ -49,7 +49,7 @@
     <div class="col-8 bg" id="map-container">
         {{ map_html|safe }}
     </div>
-    <div class="col-4 bg-warning text-white">
+    <div class="col-4 bg text-white">
         <div class="row">
             <div class="col-12 bg text-white" style = 'background-color: #1C4E80;'>
                 <h3 class="text-center">Carbon Monoxide</h3>
@@ -184,19 +184,19 @@ function createAlertToast (title, body)
     function checkGasAlerts(){
         $.post("/getGaugeData", function(data){
             let alertcount = 0;
-            if(data.methane >= $("#methane").val()){
+            if(data.methane >= parseInt($("#methane").val())){
                 createAlertToast("Methane Warning!", "Sensor 1 is detecting dangerous levels of methane!");
                 alertcount++;
             }
-            if(data.co >= $("#carbonMonoxide").val()){
+            if(data.co >= parseInt($("#carbonMonoxide").val())){
                 createAlertToast("Carbon Monoxide Warning!", "Sensor 1 is detecting dangerous levels of carbon monoxide!");
                 alertcount++;
             }
-            if(data.air >= $("#airquality").val()){
+            if(data.air >= parseInt($("#airquality").val())){
                 createAlertToast("Air Quality Warning!", "Sensor 1 is detecting dangerous air quality!");
                 alertcount++;
             }
-            if(data.butane >= $("#butane").val()){
+            if(data.butane >= parseInt($("#butane").val())){
                 createAlertToast("Butane Warning!", "Sensor 1 is detecting dangerous levels of butane!");
                 alertcount++;
             }

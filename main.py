@@ -99,6 +99,7 @@ def initialLanding():
     return render_template("testhome.html", map_html = html)
 
 @app.route("/homepage")
+@ln.login_required
 def homepage():
     map = map_create()
     html = map._repr_html_()
