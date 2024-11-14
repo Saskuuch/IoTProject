@@ -7,7 +7,6 @@
 #include <Arduino_JSON.h>
 #include <LiquidCrystal.h>
 
-
 #define rs 2
 #define en 3
 #define d4 6
@@ -15,13 +14,13 @@
 #define d6 8
 #define d7 9
 
-#define BUZZER_PIN 9
+#define BUZZER_PIN 5
 
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 const char* googleApiKey = "AIzaSyBhtNkbQ5YXhmec7bhffRRaONVgl6g76mA";
-#define SECRET_SSID "KarenNurlybekovIphone"
-#define SECRET_PASS "Qwe12345"
+#define SECRET_SSID "KarenNurlybekovIphone" // hotspot name
+#define SECRET_PASS "Qwe12345" // password hotspot
 char server[] = "www.googleapis.com";             // Geolocation server
 WiFiSSLClient client;
 
@@ -81,6 +80,7 @@ lcd.print("Calibration done");
 
   // Connect to WiFi with timeout
   Serial.println("Connecting to WiFi...");
+  lcd.print("Connecting to WiFif");
   unsigned long startAttemptTime = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) { // 10 seconds timeout
     WiFi.begin(SECRET_SSID, SECRET_PASS);
@@ -89,19 +89,19 @@ lcd.print("Calibration done");
 
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("Connected to WiFi");
+    lcd.clear();
   } else {
     Serial.println("Failed to connect to WiFi. Proceeding without connection.");
   }
 
   pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, LOW); // Ensure the buzzer is off at startup
+  noTone(BUZZER_PIN); // Ensure the buzzer is off at startup
 }
 
 void loop() {
-
+  requestDataFromFlask();
   lcd.setCursor(0,0);
   lcd.clear();
-  lcd.print("Connecting to wifif");
  if (WiFi.status() == WL_CONNECTED) {
     // Get sensor and geolocation data
     String sensorData = readSensorData();      // Get sensor values
@@ -268,7 +268,7 @@ void requestDataFromFlask() {
   Serial.println("Connecting to Flask server...");
   if (client.connect(serverflask, 443)) {
     // Construct HTTP GET request
-    client.println("GET /receive_alert HTTP/1.1");
+    client.println("GET /dangerLevels HTTP/1.1");
     client.print("Host: ");
     client.println(serverflask);
     client.println("Connection: close");
@@ -311,17 +311,44 @@ void requestDataFromFlask() {
 
     Serial.println("Server response: " + response);
 
-    response.trim(); 
+    response.trim();
 
-    if (response == "1") { //alert
-      // Activate buzzer
-      digitalWrite(BUZZER_PIN, HIGH);
+    JSONVar outerObj = JSON.parse(response);
+
+    if (JSON.typeof(outerObj) == "undefined") {
+      Serial.println("Parsing outer JSON failed!");
+      return;
+    }
+
+    // Extract the 'fetched_string' value
+    String fetchedString = (const char*)outerObj["fetched_string"];
+
+    JSONVar innerObj = JSON.parse(fetchedString);
+
+    if (JSON.typeof(innerObj) == "undefined") {
+      Serial.println("Parsing inner JSON failed!");
+      return;
+    }
+
+    // Extract the 'danger' array
+    JSONVar dangerArray = innerObj["danger"];
+
+    if (JSON.typeof(dangerArray) == "undefined") {
+      Serial.println("Failed to get 'danger' array!");
+      return;
+    }
+
+    // Get the first element of the 'danger' array
+    int dangerValue = (int)dangerArray[0];
+
+    if (dangerValue == 1) { // Alert
+      tone(BUZZER_PIN, 1000);
       Serial.println("Alert received. Buzzer activated.");
-    } else if (response == "0") { // no alert
-      digitalWrite(BUZZER_PIN, LOW);
+    } else if (dangerValue == 0) { // No alert
+      noTone(BUZZER_PIN);
       Serial.println("Normal received. Buzzer deactivated.");
     } else {
-      Serial.println("Unknown response: " + response);
+      Serial.println("Unknown danger value: " + String(dangerValue));
     }
 
     client.stop();
@@ -330,6 +357,7 @@ void requestDataFromFlask() {
     Serial.println("Connection to Flask server failed");
   }
 }
+
 
 
 float calibrateSensor(int sensorPin, int duration) {
