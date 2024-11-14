@@ -6,12 +6,14 @@
 #include <WiFiSSLClient.h>
 #include <Arduino_JSON.h>
 #include <LiquidCrystal.h>
-const int rs = 2;
-const int en = 3;
-const int d4 = 6;
-const int d5 = 7;
-const int d6 = 8;
-const int d7 = 9;
+
+
+#define rs 2
+#define en 3
+#define d4 6
+#define d5 7
+#define d6 8
+#define d7 9
 
 #define BUZZER_PIN 9
 
@@ -43,14 +45,19 @@ void setup() {
 
   delay(2000);
   lcd.begin(16, 2);
+  lcd.print("Welcome!");
 
   Serial.println("Starting sensor calibration...");
+  lcd.clear();
+lcd.print("Calibrating...!");
 delay(1000);
   // Run calibration in clean air for each sensor
   R_0_methane = calibrateSensor(METHANE, 10);
   R_0_carbonmon = calibrateSensor(CARBONMON, 10);
   R_0_airquality = calibrateSensor(AIRQUALITY, 10);
   R_0_butane = calibrateSensor(BUTANE, 10);
+
+
 
   // Print calibration results
   Serial.print("MQ4 (Methane) Calibration completed. R_0 = ");
@@ -68,6 +75,9 @@ delay(1000);
   Serial.print("MQ6 (Butane) Calibration completed. R_0 = ");
   Serial.print(R_0_butane);
   Serial.println(" kOhms");
+
+lcd.clear();
+lcd.print("Calibration done");
 
   // Connect to WiFi with timeout
   Serial.println("Connecting to WiFi...");
@@ -88,26 +98,58 @@ delay(1000);
 }
 
 void loop() {
+
+  lcd.setCursor(0,0);
+  lcd.clear();
+  lcd.print("Connecting to wifif");
  if (WiFi.status() == WL_CONNECTED) {
     // Get sensor and geolocation data
     String sensorData = readSensorData();      // Get sensor values
-    //String locationData = fetchGeolocation();   // Get latitude and longitude
+    String locationData = fetchGeolocation();   // Get latitude and longitude
+    String sensorDataLCD = readSensorDataLCD(); 
     Serial.println(sensorData);
-    lcd.setCursor(0,0);
-    lcd.print("sensorData");
-    // Combine them into a single JSON object
-    //String jsonData = "{" + sensorData + "," + locationData + "}";
+
+  int firstComma = sensorDataLCD.indexOf(',', 0);
+  int secondComma = sensorDataLCD.indexOf(',', firstComma + 1);
+  int thirdComma = sensorDataLCD.indexOf(',', secondComma + 1);
+
+  String line1 = sensorDataLCD.substring(0, firstComma);                     
+  String line2 = sensorDataLCD.substring(firstComma + 1, secondComma);       
+  String line3 = sensorDataLCD.substring(secondComma + 1, thirdComma);       
+  String line4 = sensorDataLCD.substring(thirdComma + 1);                    
+
+  lcd.clear();
+  // Display each part on a different line of the LCD
+  lcd.setCursor(0, 0);
+  lcd.print(line1);
+
+  lcd.setCursor(0, 1);
+  lcd.print(line2);
+  delay(2000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(line3);
+
+  lcd.setCursor(0, 1);
+  lcd.print(line4);
+
+  delay(2000); // Adjust the delay as needed
+  lcd.clear();
+
+    String jsonData = "{" + sensorData + "," + locationData + "}";
 
     // Print or send jsonData to the server
-    //Serial.println("Combined JSON Data: " + jsonData);
+    Serial.println("Combined JSON Data: " + jsonData);
 
     // Send data to Flask server
-    //sendDataToFlask(jsonData);
+    sendDataToFlask(jsonData);
   } else{
+    lcd.clear();
+    lcd.print("Re-Connecting to wifif");
     reconnectWiFi();
   }
-  lcd.clear();
-  delay(1000); // Wait before the next loop
+  
+  delay(2000); // Wait before the next loop
 }
 
 void reconnectWiFi() {
@@ -160,7 +202,6 @@ String fetchGeolocation() {
     String latitude = response.substring(latIndex + 6, response.indexOf(",", latIndex));
     String longitude = response.substring(lngIndex + 6, response.indexOf("\n", lngIndex));
 
-    // Return latitude and longitude as a simple comma-separated string
     return "\"latitude\":" + latitude + ",\"longitude\":" + longitude;
   } else {
     Serial.println("Latitude and Longitude not found in response.");
@@ -169,11 +210,20 @@ String fetchGeolocation() {
   }
 }
 
+String readSensorDataLCD() {
+  float ppm_methane = calculatePPM(METHANE, R_0_methane, sensorCurve_methane, gasConstant_methane);
+  float ppm_carbonmon = calculatePPM(CARBONMON, R_0_carbonmon, sensorCurve_carbonmon, gasConstant_carbonmon);
+  float ppm_airquality = calculatePPM(AIRQUALITY, R_0_airquality, sensorCurve_airquality, gasConstant_airquality);
+  float ppm_butane = calculatePPM(BUTANE, R_0_butane, sensorCurve_butane, gasConstant_butane);
+
+  return "\"CH4\":" + String(ppm_methane, 1) +
+         ",\"CO\":" + String(ppm_carbonmon, 1) +
+         ",\"AQ\":" + String(ppm_airquality, 1) +
+         ",\"C4H10\":" + String(ppm_butane, 1);
+}
 
 
 String readSensorData() {
-  // Collect and return the JSON data string (reuse your JSON formatting block here)
-  // For example:
   float ppm_methane = calculatePPM(METHANE, R_0_methane, sensorCurve_methane, gasConstant_methane);
   float ppm_carbonmon = calculatePPM(CARBONMON, R_0_carbonmon, sensorCurve_carbonmon, gasConstant_carbonmon);
   float ppm_airquality = calculatePPM(AIRQUALITY, R_0_airquality, sensorCurve_airquality, gasConstant_airquality);
@@ -206,7 +256,7 @@ void sendDataToFlask(String jsonData) {
         Serial.print(c);
       }
     }
-    client.stop(); // Close connection after sending data
+    client.stop(); 
     Serial.println("\nData sent and connection closed.");
   } else {
     Serial.println("Connection to Flask server failed");
@@ -216,10 +266,11 @@ void sendDataToFlask(String jsonData) {
 
 void requestDataFromFlask() {
   Serial.println("Connecting to Flask server...");
-  if (client.connect(serverflask, 443)) { // Use 80 for HTTP or 443 for HTTPS
+  if (client.connect(serverflask, 443)) {
     // Construct HTTP GET request
     client.println("GET /receive_alert HTTP/1.1");
-    client.println("Host: " + String(serverflask));
+    client.print("Host: ");
+    client.println(serverflask);
     client.println("Connection: close");
     client.println();
 
@@ -236,14 +287,16 @@ void requestDataFromFlask() {
     }
 
     // Read status line
-    String status_line = client.readStringUntil('\n');
+    String status_line = client.readStringUntil('\r');
     Serial.println("Status line: " + status_line);
+    client.read(); // Skip '\n'
 
     // Read headers
     String line = "";
-    while (client.available()) {
-      line = client.readStringUntil('\n');
-      if (line == "\r" || line.length() == 1) {
+    while (client.connected()) {
+      line = client.readStringUntil('\r');
+      client.read(); // Skip '\n'
+      if (line.length() == 0) {
         // Headers ended
         break;
       }
@@ -253,27 +306,25 @@ void requestDataFromFlask() {
     // Read the body
     String response = "";
     while (client.available()) {
-      response += client.readStringUntil('\n');
+      response += (char)client.read();
     }
 
     Serial.println("Server response: " + response);
 
-    // Process the response
-    response.trim(); // Remove any leading/trailing whitespace
+    response.trim(); 
 
-    if (response == "alert") {
+    if (response == "1") { //alert
       // Activate buzzer
       digitalWrite(BUZZER_PIN, HIGH);
       Serial.println("Alert received. Buzzer activated.");
-    } else if (response == "normal") {
-      // Deactivate buzzer
+    } else if (response == "0") { // no alert
       digitalWrite(BUZZER_PIN, LOW);
       Serial.println("Normal received. Buzzer deactivated.");
     } else {
-      Serial.println("Unknown response.");
+      Serial.println("Unknown response: " + response);
     }
 
-    client.stop(); // Close connection after receiving data
+    client.stop();
     Serial.println("Connection closed.");
   } else {
     Serial.println("Connection to Flask server failed");
