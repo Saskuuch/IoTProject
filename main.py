@@ -125,7 +125,11 @@ def getChartData():
             averages['butane'].append(item[3])
             #averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
             averages['timestamps'].append (item[4].strftime ("%H:%M"))
-
+    averages['carbon'].reverse()
+    averages['methane'].reverse()
+    averages['airq'].reverse()
+    averages['butane'].reverse()
+    averages['timestamps'].reverse()
     data = {
         "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
         "methane": {"timestamp": averages['timestamps'], "value":  averages['methane']},
@@ -149,6 +153,11 @@ def getChartData_24():
             averages['timestamps'].append (item[4].strftime ("%H:%M"))
             #averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
 
+    averages['carbon'].reverse()
+    averages['methane'].reverse()
+    averages['airq'].reverse()
+    averages['butane'].reverse()
+    averages['timestamps'].reverse()
     data = {
         "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
         "methane": {"timestamp": averages['timestamps'], "value":  averages['methane']},

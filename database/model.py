@@ -108,6 +108,7 @@ def get_gas (gas_index, sensor=1):
 """
 def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int, sensor=1):
     end_time = datetime.now()
+    #end_time = datetime(2024, 11, 14, 16, 15, 0)
 
     block_size = interval // 6
     time_block = 0
