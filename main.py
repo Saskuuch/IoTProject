@@ -116,13 +116,15 @@ def getChartData():
     databaseOut = md.get_gasses_over_time([4, 10, 1, 3], 1, 60)
     averages = {"carbon": [], "methane": [], "airq": [], "butane": [], "timestamps": []}
 
+    #print (databaseOut)
     for item in databaseOut:
-        if (item[4]%10 == 0):
+        #if (item[4]%10 == 0):
             averages['carbon'].append(item[0])
             averages['methane'].append(item[1])
             averages['airq'].append(item[2])
             averages['butane'].append(item[3])
-            averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+            #averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+            averages['timestamps'].append (item[4].strftime ("%H:%M"))
 
     data = {
         "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
@@ -139,12 +141,13 @@ def getChartData_24():
     averages = {"carbon": [], "methane": [], "airq": [], "butane": [], "timestamps": []}
 
     for item in databaseOut:
-        if (item[4]%2 == 0):
+        #if (item[4]%2 == 0):
             averages['carbon'].append(item[0])
             averages['methane'].append(item[1])
             averages['airq'].append(item[2])
             averages['butane'].append(item[3])
-            averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
+            averages['timestamps'].append (item[4].strftime ("%H:%M"))
+            #averages['timestamps'].append((datetime.datetime.now() - datetime.timedelta(minutes=item[4])).strftime("%H:%M"))
 
     data = {
         "carbon": {"timestamp": averages['timestamps'], "value": averages['carbon']},
@@ -176,7 +179,7 @@ def checkConnectivity():
 
 @app.route("/dangerLevels", methods=["POST", "GET"])
 def dangerLevels():
-    return md.get_last_danger_level()
+    return jsonify ({"danger": md.get_last_danger_level()}), 200
 
 #--------------Data Insert Routes--------------#
 @app.route("/addGasses", methods=["POST", "GET"])

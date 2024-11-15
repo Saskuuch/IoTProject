@@ -94,7 +94,7 @@ def is_last_data_entry_old ():
 def get_gas (gas_index, sensor=1):
     gas = parse_to_gas_enum (gas_index)
 
-    query = f"SELECT `{gas}` FROM Gasses WHERE `{gas}` IS NOT NULL AND sensor = {sensor} ORDER BY id DESC LIMIT 1"
+    query = f"SELECT `{gas}` FROM Gasses WHERE `{gas}` IS NOT NULL AND sensor = {sensor} ORDER BY datetime DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -108,6 +108,9 @@ def get_gas (gas_index, sensor=1):
 """
 def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int, sensor=1):
     end_time = datetime.now()
+
+    block_size = interval // 6
+    time_block = 0
     
     if isinstance (time_period, TimePeriod):
         time_period_value = time_period
@@ -118,8 +121,10 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int, sensor
     
     if time_period_value == TimePeriod.minute:
         start_time = end_time - timedelta(minutes=interval)
+        time_block = f"FLOOR(UNIX_TIMESTAMP(datetime) / ({block_size} * 60))"
     elif time_period_value == TimePeriod.hour:
         start_time = end_time - timedelta(hours=interval)
+        time_block = f"FLOOR(UNIX_TIMESTAMP(datetime) / ({block_size} * 3600))"
     elif time_period_value == TimePeriod.day:
         start_time = end_time - timedelta(days=interval)
     elif time_period_value == TimePeriod.week:
@@ -130,27 +135,29 @@ def get_gasses_over_time (gasses, time_period: TimePeriod, interval: int, sensor
     gasses_string = ""
     for gas in gasses:
         gasses_string += f"AVG({parse_to_gas_enum(gas)}),"
+
     query = f"""
-        SELECT
+        SELECT 
             {gasses_string}
-            {time_period_value.name.upper()}(datetime) AS {time_period_value.name}
-        FROM
+            FROM_UNIXTIME(AVG(UNIX_TIMESTAMP(datetime))) AS {time_period_value.name},
+            {time_block} AS time_block 
+        FROM 
             Gasses
         WHERE
             datetime >= '{start_time.replace(microsecond=0)}' AND datetime <= '{end_time.replace(microsecond=0)}'
-            AND sensor = {sensor}
-        GROUP BY 
-            {time_period_value.name.upper()}(datetime)
-        ORDER BY 
-            {time_period_value.name} DESC
-        LIMIT {interval};
+        GROUP BY
+            time_block
+        ORDER BY
+            time_block DESC
+        LIMIT 6;
+
     """
     results = execute_query (query)
 
     return results
     
 def get_last_danger_level (sensor=1):
-    query = f"SELECT danger FROM Gasses WHERE sensor = {sensor} ORDER BY id DESC LIMIT 1"
+    query = f"SELECT danger FROM Gasses WHERE sensor = {sensor} ORDER BY datetime DESC LIMIT 1"
 
     result = execute_query (query)
 
@@ -187,7 +194,10 @@ def get_lat_long (sensor=1):
 
     result = execute_query (query)
 
-    return result [0]
+    if len (result) == 0:
+        return (50.6708, -120.3622)
+    else:
+        return result [0]
 
 def insert_gasses_with_timestamp (gas_levels, current_time, lat, long, sensor=1):
     gasses_string = ""
